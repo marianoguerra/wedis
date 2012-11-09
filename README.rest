@@ -1,0 +1,17 @@
+wedis - a redis like db in the browser
+======================================
+
+who?
+----
+
+marianoguerra
+
+how?
+----
+
+see the tests to get an idea of the usage
+
+license
+-------
+
+MIT + optional beer for the creator
