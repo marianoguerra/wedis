@@ -177,6 +177,7 @@
     return {
         createClient: function () {
             return new Wedis(0);
-        }
+        },
+        Wedis: Wedis
     };
 }));
