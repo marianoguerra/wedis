@@ -37,6 +37,21 @@ define(["jasmine", "src/wedis"], function (Jasmine, Wedis) {
             expect(client.get("name")).toBe(null);
         });
 
+        it("should list keys", function () {
+            var client = newClient(),
+                keys;
+
+            client.set("name", "bob");
+            client.set("name1", "patrick");
+            client.set("name2", "bob");
+
+            keys = client.keys("*");
+            expect(keys.length).toBe(3);
+            expect(keys.indexOf("name")).not.toBe(-1);
+            expect(keys.indexOf("name1")).not.toBe(-1);
+            expect(keys.indexOf("name2")).not.toBe(-1);
+        });
+
         it("should override a key when set two times", function () {
             var client = newClient();
 

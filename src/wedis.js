@@ -51,6 +51,13 @@
                 return count;
             }
         },
+        keys: function (pattern) {
+            if (pattern !== "*") {
+                throw new Error("Only '*' pattern implemented");
+            }
+
+            return Object.keys(this._db);
+        },
         // TODO: check that args lenght is even
         mset: function () {
             var key = null, that = this;
