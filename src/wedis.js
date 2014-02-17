@@ -30,6 +30,27 @@
             this._db[key] = val;
             return OK;
         },
+        del: function () {
+            var
+                hash,
+                count = 0,
+                fields = [].slice.call(arguments);
+
+            hash = this._db;
+
+            if (hash === undefined) {
+                return count;
+            } else {
+                fields.forEach(function (field) {
+                    if (hash[field] !== undefined) {
+                        delete hash[field];
+                        count += 1;
+                    }
+                });
+
+                return count;
+            }
+        },
         // TODO: check that args lenght is even
         mset: function () {
             var key = null, that = this;

@@ -1,4 +1,4 @@
-/*global define describe it expect*/
+/*global define, describe, it, expect*/
 define(["jasmine", "src/wedis"], function (Jasmine, Wedis) {
     "use strict";
 
@@ -23,6 +23,18 @@ define(["jasmine", "src/wedis"], function (Jasmine, Wedis) {
             client.set("name", "bob");
 
             expect(client._db.name).toBe("bob");
+        });
+
+        it("should delete keys", function () {
+            var client = newClient();
+
+            client.set("name", "bob");
+            client.set("name1", "patrick");
+            client.set("name2", "bob");
+
+            expect(client.del("name", "name1", "name3")).toBe(2);
+            expect(client.get("name2")).toBe("bob");
+            expect(client.get("name")).toBe(null);
         });
 
         it("should override a key when set two times", function () {
