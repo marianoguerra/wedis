@@ -22,7 +22,7 @@ define(["jasmine", "src/wedis"], function (Jasmine, Wedis) {
 
             client.set("name", "bob");
 
-            expect(client._db.name).toBe("bob");
+            expect(client._db().name).toBe("bob");
         });
 
         it("should delete keys", function () {
@@ -53,7 +53,8 @@ define(["jasmine", "src/wedis"], function (Jasmine, Wedis) {
         });
 
         it("should flush db", function () {
-            var client = newClient(),
+            var client = new Wedis.Wedis("a"),
+                client1 = new Wedis.Wedis("a"),
                 keys;
 
             client.set("name", "bob");
@@ -63,10 +64,52 @@ define(["jasmine", "src/wedis"], function (Jasmine, Wedis) {
             keys = client.keys("*");
             expect(keys.length).toBe(3);
 
+            keys = client1.keys("*");
+            expect(keys.length).toBe(3);
+
             client.flushdb();
             keys = client.keys("*");
             expect(keys.length).toBe(0);
 
+            keys = client1.keys("*");
+            expect(keys.length).toBe(0);
+
+        });
+
+        it("should flush all db", function () {
+            var client3, client4,
+                client1 = new Wedis.Wedis("a"),
+                client2 = new Wedis.Wedis("b"),
+                keys;
+
+            client1.set("name", "bob");
+            client1.set("name1", "patrick");
+            client2.set("name2", "bob");
+
+            keys = client1.keys("*");
+            expect(keys.length).toBe(2);
+
+            keys = client2.keys("*");
+            expect(keys.length).toBe(1);
+
+            client1.flushall();
+
+            client3 = new Wedis.Wedis("a");
+            client4 = new Wedis.Wedis("b");
+
+            // check that works for new connections
+            keys = client3.keys("*");
+            expect(keys.length).toBe(0);
+
+            keys = client4.keys("*");
+            expect(keys.length).toBe(0);
+
+            // check that works for open connections
+            keys = client1.keys("*");
+            expect(keys.length).toBe(0);
+
+            keys = client2.keys("*");
+            expect(keys.length).toBe(0);
         });
 
         it("should override a key when set two times", function () {
@@ -75,7 +118,7 @@ define(["jasmine", "src/wedis"], function (Jasmine, Wedis) {
             client.set("name", "bob");
             client.set("name", "alice");
 
-            expect(client._db.name).toBe("alice");
+            expect(client._db().name).toBe("alice");
         });
 
         it("should get a seted value", function () {
@@ -95,15 +138,15 @@ define(["jasmine", "src/wedis"], function (Jasmine, Wedis) {
         it("should set a key in a hash if the hash doesn't exist", function () {
             var client = newClient();
             client.hset("bob", "color", "yellow");
-            expect(client._db.bob.color).toBe("yellow");
+            expect(client._db().bob.color).toBe("yellow");
         });
 
         it("should set a key in a hash if the hash exists", function () {
             var client = newClient();
             client.hset("bob", "color", "yellow");
             client.hset("bob", "location", "bikini bottom");
-            expect(client._db.bob.color).toBe("yellow");
-            expect(client._db.bob.location).toBe("bikini bottom");
+            expect(client._db().bob.color).toBe("yellow");
+            expect(client._db().bob.location).toBe("bikini bottom");
         });
 
         it("should return 0 if the value is new in the hash", function () {

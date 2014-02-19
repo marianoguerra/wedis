@@ -21,13 +21,14 @@
         if (db[dbname] === undefined) {
             db[dbname] = {};
         }
-
-        this._db = db[dbname];
     }
 
     Wedis.prototype = {
+        _db: function () {
+            return db[this.dbname];
+        },
         set: function (key, val) {
-            this._db[key] = val;
+            this._db()[key] = val;
             return OK;
         },
         del: function () {
@@ -36,7 +37,7 @@
                 count = 0,
                 fields = [].slice.call(arguments);
 
-            hash = this._db;
+            hash = this._db();
 
             if (hash === undefined) {
                 return count;
@@ -56,10 +57,16 @@
                 throw new Error("Only '*' pattern implemented");
             }
 
-            return Object.keys(this._db);
+            return Object.keys(this._db());
+        },
+        flushall: function () {
+            for (var key in db) {
+                db[key] = {};
+            }
+            return OK;
         },
         flushdb: function () {
-            this._db = {};
+            db[this.dbname] = {};
             return OK;
         },
         // TODO: check that args lenght is even
@@ -78,7 +85,7 @@
             return OK;
         },
         get: function (key) {
-            var result = this._db[key];
+            var result = this._db()[key];
 
             return (result === undefined) ? null : result;
         },
@@ -89,23 +96,24 @@
             });
         },
         exists: function (key) {
-            return this._db[key] !== undefined;
+            return this._db()[key] !== undefined;
         },
         hset: function (key, field, val) {
-            var result;
+            var result, tdb = this._db();
 
-            if (this._db[key] === undefined) {
-                this._db[key] = {};
+            if (tdb[key] === undefined) {
+                tdb[key] = {};
             }
 
-            result = (this._db[key][field] === undefined) ? 0 : 1;
+            result = (tdb[key][field] === undefined) ? 0 : 1;
 
-            this._db[key][field] = val;
+            tdb[key][field] = val;
 
             return result;
         },
         hexists: function (key, field) {
-            return this._db[key] !== undefined && this._db[key][field] !== undefined;
+            var tdb = this._db();
+            return tdb[key] !== undefined && tdb[key][field] !== undefined;
         },
         // TODO: check that we are returning an object
         // TODO: clone it defensively?
@@ -134,12 +142,13 @@
             return this.hkeys(key).length;
         },
         hget: function (key, field) {
-            if (this._db[key] === undefined) {
+            var tdb = this._db();
+            if (tdb[key] === undefined) {
                 return null;
-            } else if (this._db[key][field] === undefined) {
+            } else if (tdb[key][field] === undefined) {
                 return null;
             } else {
-                return this._db[key][field];
+                return tdb[key][field];
             }
         },
         append: function (key, value) {
@@ -162,7 +171,7 @@
                 key = arguments[0],
                 fields = [].slice.call(arguments, 1);
 
-            hash = this._db[key];
+            hash = this._db()[key];
 
             if (hash === undefined) {
                 return count;
@@ -201,7 +210,6 @@
         _clearDB: function (magicKey) {
             if (magicKey === "yes I really want it") {
                 db[this.dbname] = {};
-                this._db = db[this.dbname];
             }
         }
     };
