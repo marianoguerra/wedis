@@ -58,6 +58,10 @@
 
             return Object.keys(this._db);
         },
+        flushdb: function () {
+            this._db = {};
+            return OK;
+        },
         // TODO: check that args lenght is even
         mset: function () {
             var key = null, that = this;
